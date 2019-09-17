@@ -46,8 +46,9 @@ static DEFINE_MUTEX(i2c_lock);
 
 
 /* --------------------------------------------------------------------------------------------------------
- * Zugriff auf Register des DS3231 und Hilfsfunktionen zur Datumsformatierung
- */
+    Zugriff auf Register des DS3231 und Hilfsfunktionen zur Datumsformatierung
+   --------------------------------------------------------------------------------------------------------*/
+
 
 /*
  * Liest mehrere Bytes aus dem Register
@@ -67,6 +68,7 @@ static s32 ds3231_read_block_data(u8 reg, u8 len, u8 *buf)
     return i;
 }
 
+
 /*
  * Schreibt mehrere Bytes in das Register
  */
@@ -84,10 +86,12 @@ static s32 ds3231_write_block_data(u8 reg, u8 len, u8 *buf)
     return 0;
 }
 
+
 /*
  * Datum aus dem Register auslesen und in Struct zurueckgeben
  */
-static s32 ds3231_read_date(struct rtc_time *date) {
+static s32 ds3231_read_date(struct rtc_time *date) 
+{
     s32 ret;
     u8 regs[7];
     u8 hour_pm = 0;
@@ -100,7 +104,6 @@ static s32 ds3231_read_date(struct rtc_time *date) {
     }
 
     /* Registerwerte verwerten */
-
     /* ---Date--- */
     date->tm_mday = bcd2bin(regs[DS3231_REG_DATE]);
 
@@ -136,10 +139,12 @@ static s32 ds3231_read_date(struct rtc_time *date) {
     return 0;
 }
 
+
 /*
  * Datum in das Register schreiben
  */
-static s32 ds3231_write_date(const struct rtc_time *date) {
+static s32 ds3231_write_date(const struct rtc_time *date) 
+{
     u8 regs[7];
     s32 ret;
     int hour = date->tm_hour;
@@ -203,6 +208,7 @@ static s32 ds3231_write_date(const struct rtc_time *date) {
 
     return 0;
 }
+
 
 /*
  * Ueberpruefe ein Datum auf Korrektheit
@@ -273,30 +279,37 @@ check_fail:
     return -EINVAL;
 }
 
+
 /* --------------------------------------------------------------------------------------------------------
- * Callback-Funktionen für Device-Datei
- */
+    Callback-Funktionen für Device-Datei
+   --------------------------------------------------------------------------------------------------------*/
+
 
 /*
  * Wird beim Öffnen der Datei dev/ds3231 aufgerufen
  */
-static int ds3231_dev_open(struct inode *inode, struct file *file) {
+static int ds3231_dev_open(struct inode *inode, struct file *file) 
+{
     printk("DS3231-drv: ds3231-Device-Datei wurde aufgerufen\n");
     return 0;
 }
 
+
 /*
  * Wird beim Schliessen der Datei dev/ds3231 aufgerufen
  */
-static int ds3231_dev_close(struct inode *inode, struct file *file) {
+static int ds3231_dev_close(struct inode *inode, struct file *file) 
+{
     printk("DS3231-drv: Device-Datei geschlossen\n");
     return 0;
 }
 
+
 /*
  * Wird zum Lesen aufgerufen
  */
-static int ds3231_dev_read(struct file *file, char __user *buf, size_t count, loff_t *offset) {
+static int ds3231_dev_read(struct file *file, char __user *buf, size_t count, loff_t *offset) 
+{
     size_t written = 0;
     char date_str[64];
     struct rtc_time date;
@@ -332,10 +345,12 @@ static int ds3231_dev_read(struct file *file, char __user *buf, size_t count, lo
     return written;
 }
 
+
 /*
  * Wird zum Schreiben aufgerufen
  */
-static ssize_t ds3231_dev_write(struct file *file, const char __user *buf, size_t count, loff_t *offset) {
+static ssize_t ds3231_dev_write(struct file *file, const char __user *buf, size_t count, loff_t *offset) 
+{
     char date_str[count];
     struct rtc_time date;
     s32 ret = 0;
@@ -383,10 +398,12 @@ static ssize_t ds3231_dev_write(struct file *file, const char __user *buf, size_
     return count;
 }
 
+
 /*
  * ioctl (input output control) verarbeitet Befehle
  */
-static long ds3231_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg) {
+static long ds3231_dev_ioctl(struct file *file, unsigned int cmd, unsigned long arg) 
+{
         struct rtc_time date;
     s32 ret;
 
@@ -454,12 +471,14 @@ static struct file_operations ds3231_fops = {
         .release        = ds3231_dev_close
 };
 
+
 /* Erste Geraetenummer */
 static dev_t ds3231_first_dev;
 /* Character Device Structure */
 static struct cdev ds3231_cdev;
 /* Geraeteklasse */
 static struct class *ds3231_device_class;
+
 
 /*
  * Initialisierung des Treibers und Devices.
